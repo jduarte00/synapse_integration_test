@@ -1,0 +1,15 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "synapse-test-pepe0806"
+		},
+		"synapse-test-pepe0806-WorkspaceDefaultSqlServer_connectionString": {
+			"value": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapse-test-pepe0806.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"synapse-test-pepe0806-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://teststorageaccount3414.dfs.core.windows.net"
+		}
+	}
+}
