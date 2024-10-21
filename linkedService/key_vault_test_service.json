@@ -1,0 +1,11 @@
+{
+	"name": "key_vault_test_service",
+	"properties": {
+		"description": "just a test to see how AKV works with synapse",
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://databricksKeyVault0992.vault.azure.net/"
+		}
+	}
+}
