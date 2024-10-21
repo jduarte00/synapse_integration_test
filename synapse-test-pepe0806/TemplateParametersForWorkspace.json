@@ -10,6 +10,9 @@
 		},
 		"synapse-test-pepe0806-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"value": "https://teststorageaccount3414.dfs.core.windows.net"
+		},
+		"key_vault_test_service_properties_typeProperties_baseUrl": {
+			"value": "https://databricksKeyVault0992.vault.azure.net/"
 		}
 	}
 }

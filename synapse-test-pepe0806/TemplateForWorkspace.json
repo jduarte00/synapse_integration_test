@@ -15,6 +15,10 @@
 		"synapse-test-pepe0806-WorkspaceDefaultStorage_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://teststorageaccount3414.dfs.core.windows.net"
+		},
+		"key_vault_test_service_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://databricksKeyVault0992.vault.azure.net/"
 		}
 	},
 	"variables": {
@@ -104,7 +108,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "d505e3a8-d45a-4a5c-a252-2bf878104e0e"
+						"spark.autotune.trackingId": "09fd8ec8-9ce4-4555-ae1c-dfcc1e436572"
 					}
 				},
 				"metadata": {
@@ -296,6 +300,66 @@
 						],
 						"outputs": [],
 						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# getSecret(akvName, secret): returns AKV secret for a given akvName, secret key\r\n",
+							"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
+						],
+						"outputs": [],
+						"execution_count": 24
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"for item in letsee:\r\n",
+							"    print(item)"
+						],
+						"outputs": [],
+						"execution_count": 26
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"mssparkutils.credentials.help()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 20
 					}
 				]
 			},
@@ -325,6 +389,20 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/key_vault_test_service')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "just a test to see how AKV works with synapse",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('key_vault_test_service_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }
