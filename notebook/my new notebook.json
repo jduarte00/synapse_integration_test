@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9cd20c72-59a9-4b07-abc2-168f0a8c1b7a"
+				"spark.autotune.trackingId": "eb3bca01-1222-4bfa-842b-8d5a9be7088a"
 			}
 		},
 		"metadata": {
@@ -199,6 +199,63 @@
 					"spark.sql(\"show tables in test_schema\").show()"
 				],
 				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# getSecret(akvName, secret): returns AKV secret for a given akvName, secret key\r\n",
+					"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"for item in letsee:\r\n",
+					"    print(item)"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"mssparkutils.credentials.help()\r\n",
+					""
+				],
+				"execution_count": 20
 			}
 		]
 	}
