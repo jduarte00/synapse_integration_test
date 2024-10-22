@@ -26,6 +26,55 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/Test Pipeline Synapse Notebook')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Read CSV files and create tables",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "my new notebook",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "testSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false,
+								"spark.dynamicAllocation.minExecutors": 2,
+								"spark.dynamicAllocation.maxExecutors": 2
+							},
+							"driverSize": "Small",
+							"numExecutors": 2
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/my new notebook')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/testSparkPool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/key_vault_test_service')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -122,7 +171,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "f4eb9580-0a1b-4fcd-9fb2-011dab4f473c"
+						"spark.autotune.trackingId": "2d2d9fff-27a6-4e7b-8752-f804dd5c8c90"
 					}
 				},
 				"metadata": {
@@ -170,7 +219,7 @@
 							"import pyspark.sql.functions as sf"
 						],
 						"outputs": [],
-						"execution_count": 43
+						"execution_count": 3
 					},
 					{
 						"cell_type": "markdown",
@@ -447,10 +496,11 @@
 						},
 						"source": [
 							"# getSecret(akvName, secret): returns AKV secret for a given akvName, secret key\r\n",
-							"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
+							"#letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")\r\n",
+							"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\",\"key_vault_test_service\")"
 						],
 						"outputs": [],
-						"execution_count": 54
+						"execution_count": 8
 					},
 					{
 						"cell_type": "markdown",
@@ -587,55 +637,6 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Test Pipeline Synapse Notebook')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "Read CSV files and create tables",
-						"type": "SynapseNotebook",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebook": {
-								"referenceName": "my new notebook",
-								"type": "NotebookReference"
-							},
-							"snapshot": true,
-							"sparkPool": {
-								"referenceName": "testSparkPool",
-								"type": "BigDataPoolReference"
-							},
-							"executorSize": "Small",
-							"conf": {
-								"spark.dynamicAllocation.enabled": true,
-								"spark.dynamicAllocation.minExecutors": 1,
-								"spark.dynamicAllocation.maxExecutors": 1
-							},
-							"driverSize": "Small",
-							"numExecutors": 1
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/notebooks/my new notebook')]",
-				"[concat(variables('workspaceId'), '/bigDataPools/testSparkPool')]"
-			]
 		}
 	]
 }
