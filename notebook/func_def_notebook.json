@@ -13,7 +13,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ce34f12b-8ddb-4999-9b9d-44ba4ba7ba10"
+				"spark.autotune.trackingId": "8e1f1c4e-51b6-430b-a8b3-b5b3fd07fcfc"
 			}
 		},
 		"metadata": {
@@ -34,6 +34,24 @@
 				"source": [
 					"def print_my_name():\r\n",
 					"    print(\"José Antonio Duarte de Mendieta\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"output = {\"print_my_name\": print_my_name}"
 				],
 				"execution_count": null
 			}
