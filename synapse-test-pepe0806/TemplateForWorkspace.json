@@ -12,19 +12,33 @@
 			"metadata": "Secure string for 'connectionString' of 'synapse-test-pepe0806-WorkspaceDefaultSqlServer'",
 			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synapse-test-pepe0806.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
 		},
-		"synapse-test-pepe0806-WorkspaceDefaultStorage_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "https://teststorageaccount3414.dfs.core.windows.net"
-		},
 		"key_vault_test_service_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://databricksKeyVault0992.vault.azure.net/"
+		},
+		"synapse-test-pepe0806-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://teststorageaccount3414.dfs.core.windows.net"
 		}
 	},
 	"variables": {
 		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/key_vault_test_service')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "just a test to see how AKV works with synapse",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('key_vault_test_service_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/synapse-test-pepe0806-WorkspaceDefaultSqlServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
@@ -108,7 +122,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "09fd8ec8-9ce4-4555-ae1c-dfcc1e436572"
+						"spark.autotune.trackingId": "a0aac609-912c-4108-8d6d-90d4871fd96f"
 					}
 				},
 				"metadata": {
@@ -141,12 +155,37 @@
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
 						"source": [
-							"print(\"hello\")"
+							"import pyspark.sql.functions as sf"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 16
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Reading files from ADLS and saving them in the Hive Metastore\r\n",
+							"\r\n",
+							"Reading some csv files from an ADLS container and saving them in datframes"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -162,10 +201,10 @@
 							}
 						},
 						"source": [
-							"df = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Cars.csv\")"
+							"df_Cars = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Cars.csv\", header = True)"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -181,10 +220,61 @@
 							}
 						},
 						"source": [
-							"df.show()"
+							"df_Cars.show()"
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_countries = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Countries.csv\", header='true')"
+						],
+						"outputs": [],
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_countries.show()"
+						],
+						"outputs": [],
+						"execution_count": 19
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Creating a test DB and a test schema to save the dataframes in tables"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -219,25 +309,6 @@
 							}
 						},
 						"source": [
-							"import pyspark.sql.functions as sf"
-						],
-						"outputs": [],
-						"execution_count": 9
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
 							"spark.sql(\"CREATE SCHEMA test_schema\")"
 						],
 						"outputs": [],
@@ -257,10 +328,11 @@
 							}
 						},
 						"source": [
-							"df.write.mode(\"overwrite\").saveAsTable(\"test_schema.test_table\")"
+							"df_Cars.write.mode(\"overwrite\").saveAsTable(\"test_schema.cars_table\")\r\n",
+							"df_countries.write.mode(\"overwrite\").saveAsTable(\"test_schema.countries_table\")"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -276,11 +348,55 @@
 							}
 						},
 						"source": [
-							"lol = spark.sql(\"select * from test_schema.test_table\")\r\n",
-							"lol.show()"
+							"spark.sql(\"SELECT * FROM test_schema.countries_table\").show()"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 17
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Just checking that the tables work!"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"select * from test_schema.cars_table\").show()"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Normal Hive metastore commands also works in Synapse Notebooks"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -299,7 +415,22 @@
 							"spark.sql(\"show tables in test_schema\").show()"
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 13
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Workgin with Azure Key Vault to retrieve secrets\r\n",
+							"\r\n",
+							"This interaction uses the mssparkutils library to get the secrets. Note that you first have to set up a linked service with the details of the Key Vault"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -319,7 +450,39 @@
 							"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 20
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Although printing the secret also shows the string 'REDACTED' as in Databricks, the 'hack' to show the password by printing letter by letter is also present in synapse."
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"print(letsee)"
+						],
+						"outputs": [],
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -339,7 +502,7 @@
 							"    print(item)"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -360,6 +523,41 @@
 						],
 						"outputs": [],
 						"execution_count": 20
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Joins and spark execution plan\r\n",
+							"Let's try a join!\r\n",
+							"\r\n",
+							"Note: the actual physical query plan can be seen by clicking on the \"Open Spark UI\" button at the bottom right of the cell. "
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"select * from test_schema.cars_table ct left join test_schema.countries_table cot on ct.ID = cot.ID \").show()"
+						],
+						"outputs": [],
+						"execution_count": 15
 					}
 				]
 			},
@@ -389,20 +587,6 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/key_vault_test_service')]",
-			"type": "Microsoft.Synapse/workspaces/linkedServices",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"description": "just a test to see how AKV works with synapse",
-				"annotations": [],
-				"type": "AzureKeyVault",
-				"typeProperties": {
-					"baseUrl": "[parameters('key_vault_test_service_properties_typeProperties_baseUrl')]"
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
