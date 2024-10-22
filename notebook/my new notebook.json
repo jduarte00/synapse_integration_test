@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f4eb9580-0a1b-4fcd-9fb2-011dab4f473c"
+				"spark.autotune.trackingId": "ebe3647f-129d-4e91-8f1f-57ef9e9a6cb4"
 			}
 		},
 		"metadata": {
@@ -64,7 +64,7 @@
 				"source": [
 					"import pyspark.sql.functions as sf"
 				],
-				"execution_count": 43
+				"execution_count": 3
 			},
 			{
 				"cell_type": "markdown",
@@ -331,9 +331,10 @@
 				},
 				"source": [
 					"# getSecret(akvName, secret): returns AKV secret for a given akvName, secret key\r\n",
-					"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
+					"#letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")\r\n",
+					"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\",\"key_vault_test_service\")"
 				],
-				"execution_count": 54
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
