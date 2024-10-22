@@ -1,0 +1,40 @@
+{
+	"name": "Test Pipeline Synapse Notebook",
+	"properties": {
+		"activities": [
+			{
+				"name": "Read CSV files and create tables",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "my new notebook",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "testSparkPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": true,
+						"spark.dynamicAllocation.minExecutors": 1,
+						"spark.dynamicAllocation.maxExecutors": 1
+					},
+					"driverSize": "Small",
+					"numExecutors": 1
+				}
+			}
+		],
+		"annotations": []
+	}
+}
