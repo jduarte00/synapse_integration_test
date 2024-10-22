@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "eb3bca01-1222-4bfa-842b-8d5a9be7088a"
+				"spark.autotune.trackingId": "a83600d0-13e1-4212-894e-41df2d5a6d31"
 			}
 		},
 		"metadata": {
@@ -50,10 +50,36 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
 				"source": [
-					"print(\"hello\")"
+					"import pyspark.sql.functions as sf"
 				],
-				"execution_count": 1
+				"execution_count": 16
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Reading files from ADLS and saving them in the Hive Metastore\r\n",
+					"\r\n",
+					"Reading some csv files from an ADLS container and saving them in datframes"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -69,9 +95,9 @@
 					}
 				},
 				"source": [
-					"df = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Cars.csv\")"
+					"df_Cars = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Cars.csv\", header = True)"
 				],
-				"execution_count": 2
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -87,9 +113,58 @@
 					}
 				},
 				"source": [
-					"df.show()"
+					"df_Cars.show()"
 				],
-				"execution_count": 3
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_countries = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Countries.csv\", header='true')"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_countries.show()"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Creating a test DB and a test schema to save the dataframes in tables"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -123,24 +198,6 @@
 					}
 				},
 				"source": [
-					"import pyspark.sql.functions as sf"
-				],
-				"execution_count": 9
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
 					"spark.sql(\"CREATE SCHEMA test_schema\")"
 				],
 				"execution_count": 11
@@ -159,9 +216,10 @@
 					}
 				},
 				"source": [
-					"df.write.mode(\"overwrite\").saveAsTable(\"test_schema.test_table\")"
+					"df_Cars.write.mode(\"overwrite\").saveAsTable(\"test_schema.cars_table\")\r\n",
+					"df_countries.write.mode(\"overwrite\").saveAsTable(\"test_schema.countries_table\")"
 				],
-				"execution_count": 14
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -177,10 +235,53 @@
 					}
 				},
 				"source": [
-					"lol = spark.sql(\"select * from test_schema.test_table\")\r\n",
-					"lol.show()"
+					"spark.sql(\"SELECT * FROM test_schema.countries_table\").show()"
 				],
-				"execution_count": 16
+				"execution_count": 17
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Just checking that the tables work!"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"select * from test_schema.cars_table\").show()"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Normal Hive metastore commands also works in Synapse Notebooks"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +299,22 @@
 				"source": [
 					"spark.sql(\"show tables in test_schema\").show()"
 				],
-				"execution_count": 19
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Workgin with Azure Key Vault to retrieve secrets\r\n",
+					"\r\n",
+					"This interaction uses the mssparkutils library to get the secrets. Note that you first have to set up a linked service with the details of the Key Vault"
+				]
 			},
 			{
 				"cell_type": "code",
@@ -217,7 +333,38 @@
 					"# getSecret(akvName, secret): returns AKV secret for a given akvName, secret key\r\n",
 					"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
 				],
-				"execution_count": 24
+				"execution_count": 20
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Although printing the secret also shows the string 'REDACTED' as in Databricks, the 'hack' to show the password by printing letter by letter is also present in synapse."
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(letsee)"
+				],
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -236,7 +383,7 @@
 					"for item in letsee:\r\n",
 					"    print(item)"
 				],
-				"execution_count": 26
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -256,6 +403,40 @@
 					""
 				],
 				"execution_count": 20
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Joins and spark execution plan\r\n",
+					"Let's try a join!\r\n",
+					"\r\n",
+					"Note: the actual physical query plan can be seen by clicking on the \"Open Spark UI\" button at the bottom right of the cell. "
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"select * from test_schema.cars_table ct left join test_schema.countries_table cot on ct.ID = cot.ID \").show()"
+				],
+				"execution_count": 15
 			}
 		]
 	}
