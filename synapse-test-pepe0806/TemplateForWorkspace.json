@@ -122,7 +122,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "a0aac609-912c-4108-8d6d-90d4871fd96f"
+						"spark.autotune.trackingId": "f4eb9580-0a1b-4fcd-9fb2-011dab4f473c"
 					}
 				},
 				"metadata": {
@@ -170,7 +170,7 @@
 							"import pyspark.sql.functions as sf"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 43
 					},
 					{
 						"cell_type": "markdown",
@@ -204,7 +204,7 @@
 							"df_Cars = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Cars.csv\", header = True)"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 44
 					},
 					{
 						"cell_type": "code",
@@ -223,7 +223,7 @@
 							"df_Cars.show()"
 						],
 						"outputs": [],
-						"execution_count": 18
+						"execution_count": 45
 					},
 					{
 						"cell_type": "code",
@@ -242,7 +242,7 @@
 							"df_countries = spark.read.csv(\"abfss://adf-example@teststorageaccount3414.dfs.core.windows.net/dbo_Countries.csv\", header='true')"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 46
 					},
 					{
 						"cell_type": "code",
@@ -261,7 +261,7 @@
 							"df_countries.show()"
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 47
 					},
 					{
 						"cell_type": "markdown",
@@ -290,10 +290,10 @@
 							}
 						},
 						"source": [
-							"spark.sql(\"CREATE DATABASE test_database\")"
+							"spark.sql(\"CREATE DATABASE IF NOT EXISTS test_database\")"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 48
 					},
 					{
 						"cell_type": "code",
@@ -309,10 +309,10 @@
 							}
 						},
 						"source": [
-							"spark.sql(\"CREATE SCHEMA test_schema\")"
+							"spark.sql(\"CREATE SCHEMA IF NOT EXISTS test_schema\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 49
 					},
 					{
 						"cell_type": "code",
@@ -332,7 +332,7 @@
 							"df_countries.write.mode(\"overwrite\").saveAsTable(\"test_schema.countries_table\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 50
 					},
 					{
 						"cell_type": "code",
@@ -351,7 +351,7 @@
 							"spark.sql(\"SELECT * FROM test_schema.countries_table\").show()"
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 51
 					},
 					{
 						"cell_type": "markdown",
@@ -383,7 +383,7 @@
 							"spark.sql(\"select * from test_schema.cars_table\").show()"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 52
 					},
 					{
 						"cell_type": "markdown",
@@ -415,7 +415,7 @@
 							"spark.sql(\"show tables in test_schema\").show()"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 53
 					},
 					{
 						"cell_type": "markdown",
@@ -450,7 +450,7 @@
 							"letsee = mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\")"
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 54
 					},
 					{
 						"cell_type": "markdown",
@@ -482,7 +482,7 @@
 							"print(letsee)"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 55
 					},
 					{
 						"cell_type": "code",
@@ -502,7 +502,7 @@
 							"    print(item)"
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 56
 					},
 					{
 						"cell_type": "code",
@@ -522,7 +522,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 57
 					},
 					{
 						"cell_type": "markdown",
@@ -557,7 +557,7 @@
 							"spark.sql(\"select * from test_schema.cars_table ct left join test_schema.countries_table cot on ct.ID = cot.ID \").show()"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 58
 					}
 				]
 			},
@@ -587,6 +587,55 @@
 			},
 			"dependsOn": [],
 			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/Test Pipeline Synapse Notebook')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Read CSV files and create tables",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "my new notebook",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "testSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": true,
+								"spark.dynamicAllocation.minExecutors": 1,
+								"spark.dynamicAllocation.maxExecutors": 1
+							},
+							"driverSize": "Small",
+							"numExecutors": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/my new notebook')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/testSparkPool')]"
+			]
 		}
 	]
 }
