@@ -171,7 +171,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "2d2d9fff-27a6-4e7b-8752-f804dd5c8c90"
+						"spark.autotune.trackingId": "2d0ae88d-a8ec-4f3c-891f-cdfca341a209"
 					}
 				},
 				"metadata": {
@@ -194,7 +194,7 @@
 							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.4",
-						"nodeCount": 10,
+						"nodeCount": 3,
 						"cores": 4,
 						"memory": 28,
 						"automaticScaleJobs": false
@@ -478,7 +478,18 @@
 						"source": [
 							"# Workgin with Azure Key Vault to retrieve secrets\r\n",
 							"\r\n",
-							"This interaction uses the mssparkutils library to get the secrets. Note that you first have to set up a linked service with the details of the Key Vault"
+							"This interaction uses the mssparkutils library to get the secrets. Note that you first have to set up a linked service with the details of the Key Vault. \r\n",
+							"\r\n",
+							"Pretty important to note that the getSecret function has two different versions. One is called with only two parameters as follows: \r\n",
+							"\r\n",
+							"The first parameter is the name of the key vault and the second is the name of the secret. \r\n",
+							"This will work with an interactive session but **it won't work when running the notebook from a pipeline**.\r\n",
+							"\r\n",
+							"mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\") \r\n",
+							"\r\n",
+							"The second of using the getSecret function is to use 3 parameters as follows. **This version will work both with the interactive session and with the job session when running the notebook from a pipeline.**\r\n",
+							"\r\n",
+							"mssparkutils.credentials.getSecret(\"databricksKeyVault0992\",\"SPSECRET\",\"key_vault_test_service\")"
 						]
 					},
 					{
@@ -623,11 +634,11 @@
 					"delayInMinutes": 10
 				},
 				"autoScale": {
-					"enabled": true,
+					"enabled": false,
 					"maxNodeCount": 3,
 					"minNodeCount": 3
 				},
-				"nodeCount": 10,
+				"nodeCount": 3,
 				"nodeSize": "Small",
 				"nodeSizeFamily": "MemoryOptimized",
 				"sparkVersion": "3.4",
